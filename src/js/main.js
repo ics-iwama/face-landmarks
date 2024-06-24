@@ -6,10 +6,10 @@ let decoLoadedImage = {}; // loadした画像を格納する
 let decoImageRatios = {}; // 画像の縦横比を格納するオブジェクト
 let buttonElements = document.querySelectorAll('.button');
 let positionButtonElements = document.querySelectorAll('.position-controllerButton');
-let currentDeco = 'rabbit'; // デフォルトのデコレーション
+let currentDeco = 'rabbit'; // デフォルトのスタンプ
 
-const videoWidth = 960;
-const videoHeight = 540;
+const videoWidth = 640;
+const videoHeight = 480;
 const canvasEl = document.querySelector('#canvas');
 const videoEl = document.querySelector('#video');
 let decoMesh;
@@ -22,7 +22,7 @@ let positionY = 0;
 
 let scene, camera, renderer;
 
-// デコレーションごとの設定
+// スタンプごとの設定
 const decoSettings = {
   hige: { scale: 30, basePoint: 164, xFix: 5, yFix: -20 },
   rabbit: { scale: 280, basePoint: 1, xFix: 10, yFix: -30 },
@@ -32,11 +32,11 @@ const decoSettings = {
   bear01: { scale: 180, basePoint: 1, xFix: 0, yFix: 0 }
 };
 
-// THREE.jsの初期設定を行う関数
+// Three.jsの初期設定を行う関数
 function setupTHREE() {
   renderer = new THREE.WebGLRenderer({
     canvas: canvasEl,
-    alpha: true //canvasの背景を透明にするために設定
+    alpha: true // canvasの背景を透明にするために設定
   });
   renderer.setPixelRatio(window.devicePixelRatio);
   renderer.setSize(videoWidth, videoHeight);
@@ -48,7 +48,7 @@ function setupTHREE() {
   // カメラを作成
   const fov = 45;
   camera = new THREE.PerspectiveCamera(fov, videoWidth / videoHeight, 1, 1000);
-  camera.position.set(0, 0, 680); //ここのzの値は手動調整。なんか計算式あるのかなあ..
+  camera.position.set(0, 0, 680); // zの値は手動調整
 
   createDecoPlane();
 }
@@ -90,7 +90,7 @@ function loadDecoImages() {
       decoImageRatios[name] = img.width / img.height;
       imagesLoaded++;
       if (imagesLoaded === decoImageList.length) {
-        setupTHREE(); // 全ての画像がロードされたらTHREE.jsのセットアップを行う
+        setupTHREE(); // 全ての画像がロードされたらThree.jsのセットアップを行う
         render(); // 毎フレームレンダリングを呼び出す
       }
     };
@@ -98,7 +98,7 @@ function loadDecoImages() {
   });
 }
 
-// デコレーションのために使うplaneを作成
+// スタンプのために使うプレーンを作成
 function createDecoPlane() {
   const settings = decoSettings[currentDeco];
   const ratio = decoImageRatios[currentDeco];
@@ -120,32 +120,32 @@ function createDecoPlane() {
   scene.add(decoMesh);
 }
 
-// デコレーションプレーンを更新する関数
+// スタンププレーンを更新する関数
 function updateDecoPlane() {
-  // 既存のデコレーションメッシュを削除
+  // 既存のメッシュを削除
   if (decoMesh) {
     scene.remove(decoMesh);
     decoMesh.geometry.dispose();
     decoMesh.material.dispose();
     decoMesh = null;
   }
-  // 新しいデコレーションメッシュを作成
+  // 新しいメッシュを作成
   createDecoPlane();
 }
 
-// デコレーションのためのplaneの位置と回転、スケールを更新
+// スタンプのためのplaneの位置と回転、スケールを更新
 function updateDecoMesh() {
   if (results && results.length > 0) {
     const quaternion = calcNormalVector(); // 顔の向きのベクトル（法線ベクトル）から回転を計算
     decoMesh.quaternion.copy(quaternion); // 向きを合わせる
 
     const settings = decoSettings[currentDeco];
-    const fixData = fixLandmarkValue(results[0].keypoints); // three.jsで使える座標にする
+    const fixData = fixLandmarkValue(results[0].keypoints); // Three.jsで使える座標にする
     const basePoint = fixData[settings.basePoint];
     const faceCenter = new THREE.Vector3(
       basePoint.x + positionX + settings.xFix,
       basePoint.y + positionY + settings.yFix,
-      basePoint.z - 150
+      basePoint.z - 150,
     );
 
     const noseTip = fixData[1];  // インデックス1が鼻の中央に対応
@@ -188,7 +188,7 @@ function render() {
   renderer.render(scene, camera);
 
   detectFace(); // 顔を検知
-  updateDecoMesh(); // デコレーション用のメッシュを更新
+  updateDecoMesh(); // スタンプ用のメッシュを更新
 
   requestAnimationFrame(render); // 毎フレームレンダリングを呼び出す
 }
@@ -208,7 +208,7 @@ function calcNormalVector() {
     const perpendicularUp = {
       x: midpoint.x,
       y: midpoint.y - 10,
-      z: midpoint.z
+      z: midpoint.z,
     };
 
     faceNormalVector = new THREE.Vector3(noseTip.x, noseTip.y, noseTip.z)
@@ -224,21 +224,28 @@ function calcNormalVector() {
 
 // Webカメラを有効にする関数
 async function enableWebcam() {
-  const stream = await navigator.mediaDevices.getUserMedia({
-    audio: false,
+  const constraints = {
     video: {
       width: videoWidth,
-      height: videoHeight
-    }
-  });
+      height: videoHeight,
+      facingMode: 'user' // スマホのフロントカメラを使用
+    },
+    audio: false,
+  };
 
-  videoEl.srcObject = stream;
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia(constraints);
+    videoEl.srcObject = stream;
 
-  return new Promise((resolve) => {
-    videoEl.onloadedmetadata = () => {
-      resolve(videoEl);
-    };
-  });
+    return new Promise((resolve) => {
+      videoEl.onloadedmetadata = () => {
+        resolve(videoEl);
+      };
+    });
+  } catch (error) {
+    console.error('Error accessing webcam: ', error);
+    alert('カメラのアクセスに失敗しました。カメラのアクセス権限を確認してください。');
+  }
 }
 
 // モデルをセットアップする関数
@@ -246,7 +253,7 @@ async function setupModel() {
   const model = faceLandmarksDetection.SupportedModels.MediaPipeFaceMesh;
   const detectorConfig = {
     runtime: 'mediapipe',
-    solutionPath: 'https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh'
+    solutionPath: 'https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh',
   };
   detector = await faceLandmarksDetection.createDetector(model, detectorConfig);
 }
@@ -257,15 +264,15 @@ async function detectFace() {
   results = await detector.estimateFaces(videoEl, estimationConfig);
 }
 
-// face-landmark-detectionから取得したデータをthree.jsで扱いやすくするための関数
+// face-landmark-detectionから取得したデータをThree.jsで扱いやすくするための関数
 function fixLandmarkValue(data) {
   const depthStrength = 100;
 
   return data.map((el) => {
     return {
-      x: el.x - videoWidth / 2,
-      y: -el.y + videoHeight / 2,
-      z: ((el.z / 100) * -1 + 1) * depthStrength
+      x: el.x - videoEl.videoWidth / 2,
+      y: -el.y + videoEl.videoHeight / 2,
+      z: ((el.z / 100) * -1 + 1) * depthStrength,
     };
   });
 }
@@ -273,7 +280,7 @@ function fixLandmarkValue(data) {
 // 初期化関数
 async function init() {
   addEventListeners(); // イベントリスナーを追加
-  loadDecoImages(); // デコレーション画像の読み込みと縦横比の取得
+  loadDecoImages(); // スタンプ画像の読み込みと縦横比の取得
   await enableWebcam(); // Webカメラの準備が整うのを待つ
   await setupModel(); // モデルのセットアップ
 }
