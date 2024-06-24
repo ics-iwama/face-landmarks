@@ -29,14 +29,14 @@ const decoSettings = {
   ribbon: { scale: 70, basePoint: 0, xFix: 5, yFix: -5 },
   cat02: { scale: 180, basePoint: 1, xFix: 5, yFix: -20 },
   cat03: { scale: 190, basePoint: 1, xFix: 0, yFix: 0 },
-  bear01: { scale: 180, basePoint: 1, xFix: 0, yFix: 0 },
+  bear01: { scale: 180, basePoint: 1, xFix: 0, yFix: 0 }
 };
 
 // THREE.jsの初期設定を行う関数
 function setupTHREE() {
   renderer = new THREE.WebGLRenderer({
     canvas: canvasEl,
-    alpha: true, //canvasの背景を透明にするために設定
+    alpha: true //canvasの背景を透明にするために設定
   });
   renderer.setPixelRatio(window.devicePixelRatio);
   renderer.setSize(videoWidth, videoHeight);
@@ -105,14 +105,13 @@ function createDecoPlane() {
   const geometry = new THREE.PlaneGeometry(ratio, 1); // 縦横比を設定してジオメトリを作成
   const loader = new THREE.TextureLoader();
   const texture = loader.load(`face-landmarks/images/${currentDeco}.png`, function(map) {
-  // const texture = loader.load(`../images/aa.png`, function(map) {
     map.colorSpace = THREE.SRGBColorSpace;
   });
 
   const material = new THREE.MeshBasicMaterial({
     map: texture,
     side: THREE.DoubleSide,
-    transparent: true,
+    transparent: true
   });
 
   decoMesh = new THREE.Mesh(geometry, material);
@@ -209,7 +208,7 @@ function calcNormalVector() {
     const perpendicularUp = {
       x: midpoint.x,
       y: midpoint.y - 10,
-      z: midpoint.z,
+      z: midpoint.z
     };
 
     faceNormalVector = new THREE.Vector3(noseTip.x, noseTip.y, noseTip.z)
