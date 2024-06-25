@@ -25,7 +25,7 @@ let scene, camera, renderer;
 // スタンプごとの設定
 const decoSettings = {
   hige: { scale: 30, basePoint: 164, xFix: 5, yFix: -20 },
-  rabbit: { scale: 280, basePoint: 1, xFix: 10, yFix: -30 },
+  rabbit: { scale: 280, basePoint: 1, xFix: 5, yFix: -30 },
   ribbon: { scale: 70, basePoint: 0, xFix: 5, yFix: -5 },
   cat02: { scale: 210, basePoint: 1, xFix: 5, yFix: -20 },
   cat03: { scale: 190, basePoint: 1, xFix: 0, yFix: 0 },
@@ -149,7 +149,7 @@ function updateDecoMesh() {
   const userAgent = navigator.userAgent.toLowerCase();
   const isMobile = /iphone|ipad|ipod|android/.test(userAgent);
   const isFrontCamera = videoEl.srcObject.getTracks()[0].getSettings().facingMode === 'user';
-  const zOffset = isMobile && isFrontCamera ? 200 : 120;
+  const zOffset = isMobile && isFrontCamera ? 300 : 100;
 
   const faceCenter = new THREE.Vector3(
     basePoint.x + positionX + settings.xFix,
