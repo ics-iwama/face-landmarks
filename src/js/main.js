@@ -1,9 +1,9 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js';
 
 // グローバルな変数定義
-let decoLoadedImage = {}; // スタンプ画像を格納するオブジェクト
-let decoImageRatios = {}; // 画像の縦横比を格納するオブジェクト
 let currentDeco = 'rabbit'; // デフォルトのスタンプ
+const decoLoadedImage = {}; // スタンプ画像を格納するオブジェクト
+const decoImageRatios = {}; // 画像の縦横比を格納するオブジェクト
 const decoImageList = ['hige', 'ribbon', 'rabbit', 'cat02', 'cat03', 'bear01']; // スタンプ画像のリスト
 const buttonElements = document.querySelectorAll('.button');
 const positionButtonElements = document.querySelectorAll('.position-controllerButton');
@@ -29,17 +29,17 @@ const decoSettings = {
   ribbon: { scale: 70, basePoint: 0, xFix: 5, yFix: -5 },
   cat02: { scale: 210, basePoint: 1, xFix: 5, yFix: -20 },
   cat03: { scale: 190, basePoint: 1, xFix: 0, yFix: 0 },
-  bear01: { scale: 180, basePoint: 1, xFix: 0, yFix: 0 },
+  bear01: { scale: 180, basePoint: 1, xFix: 0, yFix: 0 }
 };
 
 // Three.jsの初期設定を行う関数
 function setupTHREE() {
   renderer = new THREE.WebGLRenderer({
     canvas: canvasEl,
-    alpha: true, // canvasの背景を透明にするために設定
+    alpha: true // canvasの背景を透明にするために設定
   });
   renderer.setPixelRatio(window.devicePixelRatio);
-  renderer.setSize( videoWidth, videoHeight);
+  renderer.setSize(videoWidth, videoHeight);
   renderer.setClearColor(0x000000, 0);
 
   // シーンを作成
@@ -111,7 +111,7 @@ function createDecoPlane() {
   const material = new THREE.MeshBasicMaterial({
     map: texture,
     side: THREE.DoubleSide,
-    transparent: true,
+    transparent: true
   });
 
   decoMesh = new THREE.Mesh(geometry, material);
@@ -133,7 +133,7 @@ function updateDecoPlane() {
   createDecoPlane();
 }
 
-// スタンプのためのplaneの位置と回転、スケールを更新
+// スタンプのためのプレーンの位置と回転、スケールを更新
 function updateDecoMesh() {
   if (!results || results.length === 0) {
     return;
@@ -154,7 +154,7 @@ function updateDecoMesh() {
   const faceCenter = new THREE.Vector3(
     basePoint.x + positionX + settings.xFix,
     basePoint.y + positionY + settings.yFix,
-    basePoint.z - zOffset,
+    basePoint.z - zOffset
   );
 
   const noseTip = fixData[1];  // インデックス1が鼻の中央に対応
@@ -223,7 +223,7 @@ function calcNormalVector() {
   const perpendicularUp = {
     x: midpoint.x,
     y: midpoint.y - 10,
-    z: midpoint.z,
+    z: midpoint.z
   };
 
   // 垂直方向に上の点（perpendicularUp）から鼻の先端（noseTip）までのベクトルを計算し、正規化して法線ベクトルを取得
@@ -244,9 +244,9 @@ async function enableWebcam() {
     video: {
       width: videoWidth,
       height: videoHeight,
-      facingMode: 'user', // スマホのフロントカメラを使用
+      facingMode: 'user' // スマホのフロントカメラを使用
     },
-    audio: false,
+    audio: false
   };
 
   try {
@@ -269,7 +269,7 @@ async function setupModel() {
   const model = faceLandmarksDetection.SupportedModels.MediaPipeFaceMesh;
   const detectorConfig = {
     runtime: 'mediapipe',
-    solutionPath: 'https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh',
+    solutionPath: 'https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh'
   };
   detector = await faceLandmarksDetection.createDetector(model, detectorConfig);
 }
@@ -288,7 +288,7 @@ function fixLandmarkValue(data) {
     return {
       x: el.x - videoEl.videoWidth / 2,
       y: -el.y + videoEl.videoHeight / 2,
-      z: ((el.z / 100) * -1 + 1) * depthStrength,
+      z: ((el.z / 100) * -1 + 1) * depthStrength
     };
   });
 }
